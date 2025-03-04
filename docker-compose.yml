@@ -24,7 +24,7 @@ services:
     depends_on:
       - db
     ports:
-      - 4443:443
+      - 443:443
   db:
     container_name: db
     image: mysql:8.0
