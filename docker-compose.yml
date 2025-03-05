@@ -2,17 +2,23 @@ version: '3.7'
 services:
   hashtopolis-backend:
     container_name: hashtopolis-backend
-    build: .
-#   image: hashtopolis/backend:latest
+## mod
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+    pull_policy: never
+## mod
+    image: hashtopolis/backend:latest
     restart: always
     volumes:
       - hashtopolis:/usr/local/share/hashtopolis:Z
-## SSL CERTS GOTTEN FROM CERTBOT
-      - ./fullchain.pem:/etc/ssl/certs/fullchain.pem
-      - ./privkey.pem:/etc/ssl/private/privkey.pem
+## mod Mount SSL
+      - ./certs/fullchain.pem:/etc/ssl/certs/fullchain.pem
+      - ./certs/privkey.pem:/etc/ssl/private/privkey.pem
 ##
-      - ./default-ssl.conf:/etc/apache2/sites-available/default-ssl.conf
-      - ./ports.conf:/etc/apache2/ports.conf
+      - ./sites/default-ssl.conf:/etc/apache2/sites-available/default-ssl.conf
+      - ./sites/ports.conf:/etc/apache2/ports.conf
+## mod
     environment:
       HASHTOPOLIS_DB_USER: $MYSQL_USER
       HASHTOPOLIS_DB_PASS: $MYSQL_PASSWORD
@@ -38,8 +44,10 @@ services:
       MYSQL_USER: $MYSQL_USER
       MYSQL_PASSWORD: $MYSQL_PASSWORD
   hashtopolis-frontend:
+## docker dgaf about frontend being amd64
     container_name: hashtopolis-frontend
-#    build: .
+    pull_policy: never
+#
     image: hashtopolis/frontend:latest
     environment:
       HASHTOPOLIS_BACKEND_URL: $HASHTOPOLIS_BACKEND_URL
