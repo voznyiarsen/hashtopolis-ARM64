@@ -17,7 +17,8 @@ A <a href="https://github.com/hashtopolis">hashtopolis</a> port with SSL and a s
    mkdir -p certs
    ```
    and setup the `.env` file to your liking, don't forget to copy your certificates to the `certs` folder
-5. Run ```
+5. Run
+   ```
    hashtopolis-container-setup.sh && /
    docker compose up -d
    ```
