@@ -11,8 +11,7 @@ A <a href="https://github.com/hashtopolis">hashtopolis</a> port with SSL and a s
 
 ## Instalation
 ### 1. Run ```
-buildx-setup.sh
-``` to setup your enviroment
+buildx-setup.sh``` to setup your enviroment
 ### 2. Run ```wget https://raw.githubusercontent.com/hashtopolis/server/master/env.example -O .env``` and edit to your liking
 ### 3. Run ```mkdir -p certs``` to create a folder for your certificates and place your SSL certificates inside
 ### 4. Run ```hashtopolis-container-setup.sh``` to pull and build the docker images
