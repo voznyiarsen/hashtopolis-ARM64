@@ -12,7 +12,8 @@ A <a href="https://github.com/hashtopolis">hashtopolis</a> port with SSL and a s
 ## Instalation
 1. Run
    ```
-   buildx-setup.sh; wget https://raw.githubusercontent.com/hashtopolis/server/master/env.example -O .env``` and edit to your liking
+   buildx-setup.sh; \
+   wget https://raw.githubusercontent.com/hashtopolis/server/master/env.example -O .env``` 
 3. Run ```
    mkdir -p certs
    ```
