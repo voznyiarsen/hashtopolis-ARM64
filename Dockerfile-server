@@ -1,4 +1,4 @@
-FROM alpine/git as preprocess
+    FROM alpine/git AS preprocess
 
 COPY .gi[t] /.git
 
@@ -6,7 +6,7 @@ RUN cd / && git rev-parse --short HEAD > /HEAD; exit 0
 
 # BASE image
 # ----BEGIN----
-FROM php:8-apache as hashtopolis-server-base
+FROM php:8-apache AS hashtopolis-server-base
 
 # Enable possible build args for injecting user commands
 ARG CONTAINER_USER_CMD_PRE
@@ -48,11 +48,9 @@ RUN apt-get update \
     && mv composer.phar /usr/local/bin/composer \
     # Enable URL rewriting using .htaccess
     && a2enmod rewrite \
-### MODIFIED START
-    && a2enmod ssl \
-    && a2ensite default-ssl 
-#    && apache2ctl configtest
-### MODIFIED END
+# ----BEGIN MOD----
+    && a2enmod ssl 
+# ----END MOD----
 
 RUN sed -i 's/KeepAliveTimeout 5/KeepAliveTimeout 10/' /etc/apache2/apache2.conf
 
@@ -88,24 +86,36 @@ COPY docker-entrypoint.sh /usr/local/bin
 # Setting the hashtopolis document root is done at build time. Because the www-data user cannot write to the apache config folder.
 COPY 000-default.conf /tmp/
 
-# mod
+# ----BEGIN MOD----
 COPY default-ssl.conf /tmp/
 COPY ports.conf /tmp/
-
 COPY fullchain.pem /tmp/
 COPY privkey.pem /tmp/
-# mod end 
+# ----END MOD----
 
 RUN envsubst '${HASHTOPOLIS_DOCUMENT_ROOT} ${HASHTOPOLIS_BINARIES_PATH}' < /tmp/000-default.conf > /etc/apache2/sites-available/000-default.conf && rm /tmp/000-default.conf
 
-# mod 
-RUN envsubst '${HASHTOPOLIS_DOCUMENT_ROOT} ${HASHTOPOLIS_BINARIES_PATH}' < /tmp/default-ssl.conf > /etc/apache2/sites-available/default-ssl.conf && rm /tmp/default-ssl.conf
-RUN envsubst '${HASHTOPOLIS_DOCUMENT_ROOT} ${HASHTOPOLIS_BINARIES_PATH}' < /tmp/ports.conf > /etc/apache2/ports.conf && rm /tmp/ports.conf
+# ----BEGIN MODIFIED SSL SETUP----
+# Process config files and set permissions
+RUN mkdir -p /etc/ssl/certs && \
+    mv /tmp/fullchain.pem /etc/ssl/certs/fullchain.pem && \
+    chmod 644 /etc/ssl/certs/fullchain.pem && \
+    mv /tmp/privkey.pem /etc/ssl/certs/privkey.pem && \
+    chmod 640 /etc/ssl/certs/privkey.pem && \
+    chown root:www-data /etc/ssl/certs/privkey.pem
 
-# you know what? fuck it. privkey goes to certs folder too, not best practice but idgaf at this point
-RUN envsubst '${HASHTOPOLIS_DOCUMENT_ROOT} ${HASHTOPOLIS_BINARIES_PATH}' < /tmp/fullchain.pem > /etc/ssl/certs/fullchain.pem && rm /tmp/fullchain.pem
-RUN envsubst '${HASHTOPOLIS_DOCUMENT_ROOT} ${HASHTOPOLIS_BINARIES_PATH}' < /tmp/privkey.pem > /etc/ssl/certs/privkey.pem && rm /tmp/privkey.pem
-# mod end
+RUN envsubst '${HASHTOPOLIS_DOCUMENT_ROOT} ${HASHTOPOLIS_BINARIES_PATH}' < /tmp/default-ssl.conf > /etc/apache2/sites-available/default-ssl.conf && \
+    chmod 644 /etc/apache2/sites-available/default-ssl.conf && \
+    rm /tmp/default-ssl.conf
+
+RUN envsubst '${HASHTOPOLIS_DOCUMENT_ROOT} ${HASHTOPOLIS_BINARIES_PATH}' < /tmp/ports.conf > /etc/apache2/ports.conf && \
+    chmod 644 /etc/apache2/ports.conf && \
+    rm /tmp/ports.conf
+
+# Now enable the site since files exist
+RUN a2ensite default-ssl \
+    && apache2ctl configtest
+# ----END MODIFIED SSL SETUP----
 
 ENTRYPOINT [ "docker-entrypoint.sh" ]
 # ----END----
@@ -113,7 +123,7 @@ ENTRYPOINT [ "docker-entrypoint.sh" ]
 
 # DEVELOPMENT Image
 # ----BEGIN----
-FROM hashtopolis-server-base as hashtopolis-server-dev
+FROM hashtopolis-server-base AS hashtopolis-server-dev
 
 # Setting up development requirements, install xdebug
 RUN yes | pecl install xdebug-3.4.0beta1 && docker-php-ext-enable xdebug \
@@ -160,7 +170,7 @@ USER vscode
 
 # PRODUCTION Image
 # ----BEGIN----
-FROM hashtopolis-server-base as hashtopolis-server-prod
+FROM hashtopolis-server-base AS hashtopolis-server-prod
 
 COPY --chown=www-data:www-data ./src/ $HASHTOPOLIS_DOCUMENT_ROOT
 
