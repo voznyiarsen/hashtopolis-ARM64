@@ -1,25 +1,21 @@
-# Hashtopolis ARM64 Port
+# Hashtopolis + SWAG (ARM64)
+Link to the original project is below
+https://github.com/hashtopolis
 
-A <a href="https://github.com/hashtopolis">hashtopolis</a> port with SSL and a simple instalation
----
+# Installation
+Edit the `docker-compose.yml` file before running the command below
 
-## Prerequisites
+Run SWAG to create config files inside the directory that it binds to
+```bash
+docker compose up swag -d; sleep 10; docker compose stop swag
+```
 
-1. **docker with buildx and compose**
-2. **SSL certificates (3rd party verified or self-signed)**
----
+Then just build the images using the script below
+```bash
+./build-images.sh
+```
 
-## Instalation
-1. Run
-   ```
-   buildx-setup.sh && \
-   cp env.example .env && \
-   mkdir -p certs
-   ```
-   and edit the `.env` file to your liking, don't forget to copy your certificates to the `certs` folder
-2. Run
-   ```
-   hashtopolis-container-setup.sh && /
-   docker compose up -d
-   ```
-   to build and start hashtopolis
+# Running Hashtopolis
+Just run teh `docker compose up -d` command
+
+If you decide to use `dns` verification, make sure you add your DNS API keys to the .ini file of your provider inside `./swag/config/dns-conf/`
