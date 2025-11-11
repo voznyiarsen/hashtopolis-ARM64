@@ -18,4 +18,4 @@ Then just build the images using the script below
 # Running Hashtopolis
 Just run teh `docker compose up -d` command
 
-If you decide to use `dns` verification, make sure you add your DNS API keys to the .ini file of your provider inside `./swag/config/dns-conf/`
+If you decide to use dns verification, make sure you add your DNS API keys to the .ini file of your provider inside `./swag/config/dns-conf/`
