@@ -1,5 +1,5 @@
 # Hashtopolis + SWAG (ARM64)
-Link to the original project is below
+Link to the original project is:
 https://github.com/hashtopolis
 
 # Installation
